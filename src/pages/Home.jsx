@@ -40,7 +40,7 @@ export default function Home() {
   return (
     <PageShell>
       <div style={{ maxWidth: r.contentMaxWidth, margin: '0 auto', padding: `0 ${r.sidePad}` }}>
-        <div ref={heroRef} style={{ marginTop: r.heroPaddingTop, marginBottom: 32, textAlign: 'center' }}>
+        <div ref={heroRef} style={{ marginTop: r.heroPaddingTop, marginBottom: 4, textAlign: 'center' }}>
           <svg
             style={{ width: r.heroIllustrationSize, height: 'auto', display: 'inline-block' }}
             viewBox="0 0 227 273"
@@ -52,7 +52,7 @@ export default function Home() {
           </svg>
         </div>
 
-        <section style={{ textAlign: 'center', paddingTop: 0, paddingBottom: 44 }}>
+        <section style={{ textAlign: 'center', paddingTop: 0, paddingBottom: 4 }}>
           <p className="font-jost" style={{ fontWeight: 300, fontSize: 13, color: '#999', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 12px 0' }}>
             meet
           </p>

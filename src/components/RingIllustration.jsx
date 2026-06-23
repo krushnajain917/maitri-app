@@ -63,7 +63,7 @@ export default function RingIllustration({ size, step, onSelectStep }) {
   const [markerX, markerY] = ringPoint(activeDef.avgR, activeDef.phase, angle);
 
   return (
-    <div style={{ textAlign: 'center', marginBottom: 24 }}>
+    <div style={{ textAlign: 'center', marginBottom: 0 }}>
       <svg
         ref={svgRef}
         viewBox="-10 -15 400 400"

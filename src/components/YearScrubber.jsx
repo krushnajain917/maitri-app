@@ -33,22 +33,22 @@ export default function YearScrubber({ step, stepCount, current, onSelectStep, i
   const percent = stepCount > 1 ? (step / (stepCount - 1)) * 100 : 0;
 
   return (
-    <div style={{ textAlign: 'center', maxWidth: 420, margin: '0 auto 36px' }}>
-      <p className="font-jost" style={{ fontWeight: 500, fontSize: 30, color: '#1a1a1a', margin: '0 0 10px 0' }}>
+    <div style={{ textAlign: 'center', maxWidth: 340, margin: '0 auto 8px' }}>
+      <p className="font-jost" style={{ fontWeight: 500, fontSize: 20, color: '#1a1a1a', margin: '0 0 4px 0' }}>
         {current.year} · age {current.age}
       </p>
-      <p className="font-jost" style={{ fontWeight: 300, fontSize: 18, color: '#888', lineHeight: 1.6, margin: '0 0 28px 0' }}>
+      <p className="font-jost" style={{ fontWeight: 300, fontSize: 14, color: '#888', lineHeight: 1.4, margin: '0 0 10px 0' }}>
         {current.caption}
       </p>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
         <button
           onClick={onTogglePlay}
           aria-label={isPlaying ? 'pause' : 'play'}
           style={{
             flexShrink: 0,
-            width: 36,
-            height: 36,
+            width: 30,
+            height: 30,
             background: '#fff',
             border: '1.5px solid #1a1a1a',
             borderRadius: '50%',
@@ -57,8 +57,8 @@ export default function YearScrubber({ step, stepCount, current, onSelectStep, i
             alignItems: 'center',
             justifyContent: 'center',
             padding: 0,
-            minWidth: 44,
-            minHeight: 44,
+            minWidth: 36,
+            minHeight: 36,
           }}
         >
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
@@ -68,7 +68,7 @@ export default function YearScrubber({ step, stepCount, current, onSelectStep, i
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          style={{ flex: 1, position: 'relative', height: 28, display: 'flex', alignItems: 'center', cursor: dragging ? 'grabbing' : 'pointer', touchAction: 'none' }}
+          style={{ flex: 1, position: 'relative', height: 24, display: 'flex', alignItems: 'center', cursor: dragging ? 'grabbing' : 'pointer', touchAction: 'none' }}
         >
           <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: 2, background: '#ddd', borderRadius: 1, transform: 'translateY(-50%)' }} />
           <div
@@ -77,8 +77,8 @@ export default function YearScrubber({ step, stepCount, current, onSelectStep, i
               left: `${percent}%`,
               top: '50%',
               transform: 'translate(-50%, -50%)',
-              width: 12,
-              height: 12,
+              width: 10,
+              height: 10,
               background: '#D6443C',
               borderRadius: '50%',
               transition: dragging ? 'none' : 'left 0.2s ease',
@@ -86,7 +86,7 @@ export default function YearScrubber({ step, stepCount, current, onSelectStep, i
           />
         </div>
       </div>
-      <p className="font-jost" style={{ fontWeight: 300, fontSize: 15, color: '#c0b8b0', lineHeight: 1.5 }}>
+      <p className="font-jost" style={{ fontWeight: 300, fontSize: 12, color: '#c0b8b0', lineHeight: 1.4 }}>
         drag the rings or the slider — each year has its own sound.
       </p>
     </div>
