@@ -12,18 +12,32 @@ export function useTreeRing() {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
     setIsPlaying(false);
+  }, []);
+
+  const playStepAudio = useCallback((stepIdx) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    const audio = new Audio(ringYears[stepIdx].audio);
+    audioRef.current = audio;
+    audio.addEventListener('ended', () => setIsPlaying(false));
+    audio.play();
+    setIsPlaying(true);
   }, []);
 
   const selectStep = useCallback(
     (next) => {
       const clamped = Math.max(0, Math.min(STEP_COUNT - 1, next));
       if (clamped === step) return;
-      stopAudio();
+      if (isPlaying) {
+        playStepAudio(clamped);
+      }
       setStep(clamped);
     },
-    [step, stopAudio]
+    [step, isPlaying, playStepAudio]
   );
 
   const togglePlay = useCallback(() => {
@@ -31,12 +45,8 @@ export function useTreeRing() {
       stopAudio();
       return;
     }
-    const audio = new Audio(ringYears[step].audio);
-    audioRef.current = audio;
-    audio.addEventListener('ended', () => setIsPlaying(false));
-    audio.play();
-    setIsPlaying(true);
-  }, [isPlaying, step, stopAudio]);
+    playStepAudio(step);
+  }, [isPlaying, step, stopAudio, playStepAudio]);
 
   useEffect(() => {
     return () => {

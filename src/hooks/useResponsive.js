@@ -13,10 +13,18 @@ export function useResponsive() {
   const isTablet = width > 480 && width < 1024;
   const isDesktop = width >= 1024;
 
+  const sidePadPx = isMobile ? 20 : 24;
+  const contentMaxPx = isDesktop ? 1140 : isTablet ? 860 : width;
+  const gutterPx = Math.max(0, (width - contentMaxPx) / 2);
+  // Branches must never reach past where the content padding ends, so they
+  // can never overlap text regardless of which section they sit next to.
+  const branchSafeReach = gutterPx + sidePadPx;
+
   return {
     isMobile,
     isTablet,
     isDesktop,
+    branchSafeReach,
     contentMaxWidth: isDesktop ? '1140px' : isTablet ? '860px' : '100%',
     sidePad: isMobile ? '20px' : '24px',
     heroPaddingTop: isMobile ? '12px' : '8px',

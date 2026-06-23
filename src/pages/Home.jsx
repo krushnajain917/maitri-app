@@ -31,11 +31,20 @@ const LEFT_BRANCHES = [
   { name: 'l4', top: 2284, offset: -88, width: 310, rotate: 5, opacity: 0.85 },
 ];
 
+// Largest inward reach (width + offset) among the branches above, at their
+// original authored size — used to scale every branch down so none of them
+// can ever reach past the content padding and overlap body text at rest.
+const BRANCH_REFERENCE_REACH = Math.max(
+  ...RIGHT_BRANCHES.map((b) => b.width + b.offset),
+  ...LEFT_BRANCHES.map((b) => b.width + b.offset)
+);
+
 export default function Home() {
   const tree = useTreeRing();
   const r = useResponsive();
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const branchScale = Math.min(1, r.branchSafeReach / BRANCH_REFERENCE_REACH);
 
   return (
     <PageShell>
@@ -126,10 +135,26 @@ export default function Home() {
       </div>
 
       {RIGHT_BRANCHES.map((b) => (
-        <ScrollBranch key={b.name} side="r" src={branchRight} progress={scrollYProgress} {...b} />
+        <ScrollBranch
+          key={b.name}
+          side="r"
+          src={branchRight}
+          progress={scrollYProgress}
+          {...b}
+          offset={b.offset * branchScale}
+          width={b.width * branchScale}
+        />
       ))}
       {LEFT_BRANCHES.map((b) => (
-        <ScrollBranch key={b.name} side="l" src={branchLeft} progress={scrollYProgress} {...b} />
+        <ScrollBranch
+          key={b.name}
+          side="l"
+          src={branchLeft}
+          progress={scrollYProgress}
+          {...b}
+          offset={b.offset * branchScale}
+          width={b.width * branchScale}
+        />
       ))}
     </PageShell>
   );
