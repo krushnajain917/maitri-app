@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
+import About from './pages/About';
 import ComingSoon from './pages/ComingSoon';
 
 export default function App() {
@@ -7,7 +8,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<ComingSoon title="about us" />} />
+        <Route path="/about" element={<About />} />
         <Route path="/find" element={<ComingSoon title="find a tree" />} />
         <Route path="/communities" element={<ComingSoon title="communities" />} />
         <Route path="/you" element={<ComingSoon title="you" />} />

@@ -21,6 +21,7 @@ export function useResponsive() {
   const branchSafeReach = gutterPx + sidePadPx;
 
   return {
+    width,
     isMobile,
     isTablet,
     isDesktop,
