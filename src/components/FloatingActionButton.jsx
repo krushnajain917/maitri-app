@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TreeIcon } from '../icons';
 
-export default function FloatingActionButton() {
+export default function FloatingActionButton({ to = '/find' }) {
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 480 : false);
 
   useEffect(() => {
@@ -21,6 +23,7 @@ export default function FloatingActionButton() {
     >
       <button
         className="font-jost"
+        onClick={() => navigate(to)}
         style={{
           display: 'flex',
           alignItems: 'center',

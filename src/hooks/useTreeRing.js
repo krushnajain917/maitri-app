@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ringYears } from '../data/ringYears';
+import { ringYears as defaultRingYears } from '../data/ringYears';
 
-const STEP_COUNT = ringYears.length;
-
-export function useTreeRing() {
+export function useTreeRing(years = defaultRingYears) {
+  const stepCount = years.length;
   const [step, setStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
@@ -17,27 +16,30 @@ export function useTreeRing() {
     setIsPlaying(false);
   }, []);
 
-  const playStepAudio = useCallback((stepIdx) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    const audio = new Audio(ringYears[stepIdx].audio);
-    audioRef.current = audio;
-    audio.addEventListener('ended', () => setIsPlaying(false));
-    audio.play();
-    setIsPlaying(true);
-  }, []);
+  const playStepAudio = useCallback(
+    (stepIdx) => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      const audio = new Audio(years[stepIdx].audio);
+      audioRef.current = audio;
+      audio.addEventListener('ended', () => setIsPlaying(false));
+      audio.play();
+      setIsPlaying(true);
+    },
+    [years]
+  );
 
   const selectStep = useCallback(
     (next) => {
-      const clamped = Math.max(0, Math.min(STEP_COUNT - 1, next));
+      const clamped = Math.max(0, Math.min(stepCount - 1, next));
       if (clamped === step) return;
       if (isPlaying) {
         playStepAudio(clamped);
       }
       setStep(clamped);
     },
-    [step, isPlaying, playStepAudio]
+    [step, isPlaying, playStepAudio, stepCount]
   );
 
   const togglePlay = useCallback(() => {
@@ -58,10 +60,10 @@ export function useTreeRing() {
 
   return {
     step,
-    stepCount: STEP_COUNT,
+    stepCount,
     selectStep,
     isPlaying,
     togglePlay,
-    current: ringYears[step],
+    current: years[step],
   };
 }

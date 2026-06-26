@@ -1,0 +1,1220 @@
+diff --git a/src/App.jsx b/src/App.jsx
+index 2cf3ac5..17d6bf0 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -1,6 +1,8 @@
+ import { BrowserRouter, Routes, Route } from 'react-router-dom';
+ import Home from './pages/Home';
+ import About from './pages/About';
++import FindATree from './pages/FindATree';
++import RakhiConfirmation from './pages/RakhiConfirmation';
+ import ComingSoon from './pages/ComingSoon';
+ 
+ export default function App() {
+@@ -9,7 +11,10 @@ export default function App() {
+       <Routes>
+         <Route path="/" element={<Home />} />
+         <Route path="/about" element={<About />} />
+-        <Route path="/find" element={<ComingSoon title="find a tree" />} />
++        <Route path="/find" element={<FindATree />} />
++        <Route path="/find/rakhi-confirmed" element={<RakhiConfirmation />} />
++        <Route path="/find/circle" element={<ComingSoon title="your circle" />} />
++        <Route path="/find/wellbeing" element={<ComingSoon title="jyestha's wellbeing" />} />
+         <Route path="/communities" element={<ComingSoon title="communities" />} />
+         <Route path="/you" element={<ComingSoon title="you" />} />
+       </Routes>
+diff --git a/src/components/FloatingActionButton.jsx b/src/components/FloatingActionButton.jsx
+index 4782dfe..437781e 100644
+--- a/src/components/FloatingActionButton.jsx
++++ b/src/components/FloatingActionButton.jsx
+@@ -1,7 +1,9 @@
+ import { useEffect, useState } from 'react';
++import { useNavigate } from 'react-router-dom';
+ import { TreeIcon } from '../icons';
+ 
+-export default function FloatingActionButton() {
++export default function FloatingActionButton({ to = '/find', label }) {
++  const navigate = useNavigate();
+   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 480 : false);
+ 
+   useEffect(() => {
+@@ -21,6 +23,7 @@ export default function FloatingActionButton() {
+     >
+       <button
+         className="font-jost"
++        onClick={() => navigate(to)}
+         style={{
+           display: 'flex',
+           alignItems: 'center',
+@@ -39,7 +42,7 @@ export default function FloatingActionButton() {
+         }}
+       >
+         <TreeIcon width={17} height={22} fill="#fff" />
+-        {isMobile ? 'find a tree' : 'find a tree · tie a rakhi'}
++        {label ?? (isMobile ? 'find a tree' : 'find a tree · tie a rakhi')}
+       </button>
+     </div>
+   );
+diff --git a/src/components/MumbaiMapIllustration.jsx b/src/components/MumbaiMapIllustration.jsx
+new file mode 100644
+index 0000000..63277bd
+--- /dev/null
++++ b/src/components/MumbaiMapIllustration.jsx
+@@ -0,0 +1,87 @@
++// Hand-drawn Mumbai map background, vector-recreated to match the supplied
++// reference illustration (sea, peninsula split by a road, juhu/bandra/dharavi).
++export default function MumbaiMapIllustration() {
++  return (
++    <svg
++      viewBox="0 0 960 540"
++      preserveAspectRatio="xMidYMid slice"
++      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
++      xmlns="http://www.w3.org/2000/svg"
++    >
++      <rect x="0" y="0" width="960" height="540" fill="#dce6ef" />
++
++      {/* sea dots */}
++      {[[612, 128], [624, 152], [638, 150], [728, 192], [726, 232], [754, 318], [772, 330], [60, 430], [56, 462], [62, 460], [108, 558]].map(
++        ([cx, cy], i) => (
++          <circle key={i} cx={cx} cy={cy} r={i % 3 === 0 ? 5 : 3} fill="#3a64a8" />
++        )
++      )}
++
++      <text
++        x="18"
++        y="270"
++        fill="#3a64a8"
++        fontFamily="cursive, 'Brush Script MT', sans-serif"
++        fontSize="17"
++        transform="rotate(-90 18 270)"
++      >
++        arabian sea
++      </text>
++
++      {/* peninsula */}
++      <path
++        d="M95,0 C70,90 60,200 65,300 C68,360 30,420 55,470 C62,490 60,505 60,540
++           L580,540 C575,460 605,380 600,300 C598,200 610,90 600,0 Z"
++        fill="#ecdfc4"
++        stroke="#1a1a1a"
++        strokeWidth="2.5"
++      />
++
++      {/* dividing road */}
++      <line x1="340" y1="0" x2="340" y2="540" stroke="#1a1a1a" strokeWidth="3" />
++      <line x1="340" y1="95" x2="560" y2="95" stroke="#1a1a1a" strokeWidth="2.5" />
++
++      {/* dashed roads */}
++      <path d="M280,0 C275,30 290,55 285,90" stroke="#1a1a1a" strokeWidth="2.5" fill="none" strokeDasharray="6 6" />
++      <path d="M565,130 C580,170 560,200 575,230" stroke="#1a1a1a" strokeWidth="2.5" fill="none" strokeDasharray="6 6" />
++      <path d="M540,400 C535,430 545,450 530,480" stroke="#1a1a1a" strokeWidth="2.5" fill="none" strokeDasharray="6 6" />
++      <path d="M70,390 C68,410 62,420 65,440" stroke="#1a1a1a" strokeWidth="2" fill="none" strokeDasharray="5 5" />
++
++      {/* thin curvy streets */}
++      <path d="M90,130 C150,128 220,140 330,128" stroke="#555" strokeWidth="1.3" fill="none" />
++      <path d="M340,230 C400,228 460,260 470,210" stroke="#555" strokeWidth="1.3" fill="none" />
++      <path d="M360,290 C420,300 470,290 540,290" stroke="#555" strokeWidth="1.3" fill="none" />
++      <path d="M220,400 C260,390 300,410 340,395" stroke="#555" strokeWidth="1.3" fill="none" />
++      <path d="M220,400 C210,440 230,470 290,470" stroke="#555" strokeWidth="1.3" fill="none" />
++
++      {/* juhu / bandra blocks (left landmass) */}
++      <g stroke="#1a1a1a" strokeWidth="1.6">
++        <rect x="190" y="105" width="35" height="55" fill="#f3e3bd" />
++        <rect x="160" y="135" width="30" height="35" fill="#fff" />
++        <rect x="225" y="125" width="22" height="22" fill="#fff" />
++        <rect x="95" y="170" width="45" height="40" fill="#e9d2a0" />
++        <rect x="140" y="175" width="40" height="45" fill="#e9d2a0" />
++        <rect x="100" y="210" width="35" height="35" fill="#f6e6c0" />
++        <rect x="150" y="220" width="50" height="35" fill="#f6e6c0" />
++        <rect x="200" y="200" width="25" height="20" fill="#fff" />
++      </g>
++
++      {/* dharavi blocks (right landmass) */}
++      <g stroke="#1a1a1a" strokeWidth="1.6">
++        <rect x="420" y="180" width="55" height="55" fill="#f6cf7a" />
++        <rect x="465" y="195" width="30" height="35" fill="#fff" />
++        <rect x="360" y="225" width="40" height="35" fill="#fff" />
++        <rect x="395" y="235" width="35" height="40" fill="#e9d2a0" />
++        <rect x="360" y="270" width="45" height="40" fill="#e9d2a0" />
++        <rect x="400" y="290" width="40" height="30" fill="#fff" />
++        <rect x="445" y="280" width="55" height="35" fill="#f6e6c0" />
++        <rect x="490" y="300" width="45" height="40" fill="#f6e6c0" />
++        <rect x="335" y="305" width="25" height="25" fill="#fff" />
++      </g>
++
++      <text x="105" y="100" fontFamily="sans-serif" fontSize="20" fill="#1a1a1a">juhu</text>
++      <text x="115" y="265" fontFamily="sans-serif" fontSize="22" fill="#1a1a1a">bandra</text>
++      <text x="430" y="365" fontFamily="sans-serif" fontSize="22" fill="#1a1a1a">dharavi</text>
++    </svg>
++  );
++}
+diff --git a/src/components/PageShell.jsx b/src/components/PageShell.jsx
+index 66f21da..4369bfa 100644
+--- a/src/components/PageShell.jsx
++++ b/src/components/PageShell.jsx
+@@ -4,7 +4,7 @@ import HamburgerMenu from './HamburgerMenu';
+ import FloatingActionButton from './FloatingActionButton';
+ import BottomNav from './BottomNav';
+ 
+-export default function PageShell({ children }) {
++export default function PageShell({ children, fabLabel }) {
+   const [menuOpen, setMenuOpen] = useState(false);
+ 
+   return (
+@@ -14,7 +14,7 @@ export default function PageShell({ children }) {
+       <main className="pb-[148px] tablet:pb-20 desktop:pb-20" style={{ position: 'relative' }}>
+         {children}
+       </main>
+-      <FloatingActionButton />
++      <FloatingActionButton label={fabLabel} />
+       <BottomNav />
+     </>
+   );
+diff --git a/src/components/RingIllustration.jsx b/src/components/RingIllustration.jsx
+index 5ac4e7f..f1a2a82 100644
+--- a/src/components/RingIllustration.jsx
++++ b/src/components/RingIllustration.jsx
+@@ -1,9 +1,12 @@
+-import { useCallback, useRef, useState } from 'react';
++import { useCallback, useMemo, useRef, useState } from 'react';
+ import { RING_DEFS, CORE_RING, CENTER, ringPath, ringPoint } from '../utils/ringGeometry';
+ 
+-const RADII = RING_DEFS.map((r) => r.avgR);
+ const VIEWBOX = { minX: -10, minY: -15, w: 400, h: 400 };
+ 
++const DEFAULT_RINGS = RING_DEFS.map((r) => ({ ...r, d: ringPath(r.avgR, r.phase) }));
++const DEFAULT_CORE_D = ringPath(CORE_RING.avgR, CORE_RING.phase);
++const defaultPointAt = (ringDef, angle) => ringPoint(ringDef.avgR, ringDef.phase, angle);
++
+ function clientToSvgPoint(svg, clientX, clientY) {
+   const rect = svg.getBoundingClientRect();
+   const x = VIEWBOX.minX + ((clientX - rect.left) / rect.width) * VIEWBOX.w;
+@@ -11,37 +14,52 @@ function clientToSvgPoint(svg, clientX, clientY) {
+   return [x, y];
+ }
+ 
+-function nearestStepForRadius(radius) {
+-  let bestIdx = 0;
+-  let bestDist = Infinity;
+-  RADII.forEach((r, i) => {
+-    const dist = Math.abs(r - radius);
+-    if (dist < bestDist) {
+-      bestDist = dist;
+-      bestIdx = i;
+-    }
+-  });
+-  // RADII is outer -> inner; ring years are oldest(innermost) -> newest(outermost).
+-  return RADII.length - 1 - bestIdx;
+-}
+-
+-export default function RingIllustration({ size, step, onSelectStep }) {
++export default function RingIllustration({
++  size,
++  step,
++  onSelectStep,
++  rings = DEFAULT_RINGS,
++  coreD = DEFAULT_CORE_D,
++  coreStrokeWidth = CORE_RING.strokeWidth,
++  center = CENTER,
++  pointAt = defaultPointAt,
++  markerColor = '#D6443C',
++}) {
+   const svgRef = useRef(null);
+   const [angle, setAngle] = useState(-Math.PI / 2);
+   const [dragging, setDragging] = useState(false);
+ 
++  const radii = useMemo(() => rings.map((r) => r.avgR), [rings]);
++
++  const nearestStepForRadius = useCallback(
++    (radius) => {
++      let bestIdx = 0;
++      let bestDist = Infinity;
++      radii.forEach((r, i) => {
++        const dist = Math.abs(r - radius);
++        if (dist < bestDist) {
++          bestDist = dist;
++          bestIdx = i;
++        }
++      });
++      // radii is outer -> inner; ring years are oldest(innermost) -> newest(outermost).
++      return radii.length - 1 - bestIdx;
++    },
++    [radii]
++  );
++
+   const handlePointer = useCallback(
+     (clientX, clientY) => {
+       const svg = svgRef.current;
+       if (!svg) return;
+       const [x, y] = clientToSvgPoint(svg, clientX, clientY);
+-      const dx = x - CENTER.cx;
+-      const dy = y - CENTER.cy;
++      const dx = x - center.cx;
++      const dy = y - center.cy;
+       const radius = Math.sqrt(dx * dx + dy * dy);
+       setAngle(Math.atan2(dy, dx));
+       onSelectStep(nearestStepForRadius(radius));
+     },
+-    [onSelectStep]
++    [onSelectStep, center, nearestStepForRadius]
+   );
+ 
+   const onPointerDown = (e) => {
+@@ -58,9 +76,9 @@ export default function RingIllustration({ size, step, onSelectStep }) {
+     e.currentTarget.releasePointerCapture(e.pointerId);
+   };
+ 
+-  const activeRingIdx = RADII.length - 1 - step;
+-  const activeDef = RING_DEFS[activeRingIdx];
+-  const [markerX, markerY] = ringPoint(activeDef.avgR, activeDef.phase, angle);
++  const activeRingIdx = radii.length - 1 - step;
++  const activeDef = rings[activeRingIdx];
++  const [markerX, markerY] = pointAt(activeDef, angle);
+ 
+   return (
+     <div style={{ textAlign: 'center', marginBottom: 0 }}>
+@@ -74,10 +92,10 @@ export default function RingIllustration({ size, step, onSelectStep }) {
+         onPointerMove={onPointerMove}
+         onPointerUp={onPointerUp}
+       >
+-        {RING_DEFS.map((r, i) => (
++        {rings.map((r, i) => (
+           <path
+             key={i}
+-            d={ringPath(r.avgR, r.phase)}
++            d={r.d}
+             stroke="#1a1a1a"
+             strokeWidth={r.strokeWidth}
+             fill="none"
+@@ -87,9 +105,9 @@ export default function RingIllustration({ size, step, onSelectStep }) {
+           />
+         ))}
+         <path
+-          d={ringPath(CORE_RING.avgR, CORE_RING.phase)}
++          d={coreD}
+           stroke="#1a1a1a"
+-          strokeWidth={CORE_RING.strokeWidth}
++          strokeWidth={coreStrokeWidth}
+           fill="none"
+           strokeLinecap="round"
+           strokeLinejoin="round"
+@@ -98,10 +116,10 @@ export default function RingIllustration({ size, step, onSelectStep }) {
+           cx={markerX}
+           cy={markerY}
+           r="5.5"
+-          fill="#D6443C"
++          fill={markerColor}
+           style={{ transition: dragging ? 'none' : 'cx 0.3s ease, cy 0.3s ease' }}
+         />
+-        <circle cx={CENTER.cx} cy={CENTER.cy} r="2" fill="#1a1a1a" opacity="0.25" />
++        <circle cx={center.cx} cy={center.cy} r="2" fill="#1a1a1a" opacity="0.25" />
+       </svg>
+     </div>
+   );
+diff --git a/src/data/jyesthaRingYears.js b/src/data/jyesthaRingYears.js
+new file mode 100644
+index 0000000..5787b93
+--- /dev/null
++++ b/src/data/jyesthaRingYears.js
+@@ -0,0 +1,46 @@
++import ring0 from '../assets/audio/jyestha-ring-0.wav';
++import ring1 from '../assets/audio/jyestha-ring-1.wav';
++import ring2 from '../assets/audio/jyestha-ring-2.wav';
++import ring3 from '../assets/audio/jyestha-ring-3.wav';
++import ring4 from '../assets/audio/jyestha-ring-4.wav';
++import ring5 from '../assets/audio/jyestha-ring-5.wav';
++
++// Ordered innermost ring (oldest) -> outermost ring (most recent).
++export const jyesthaRingYears = [
++  {
++    year: 1895,
++    age: 0,
++    caption: 'a sapling on open land, no walls yet, no roads yet — just soil and sky.',
++    audio: ring0,
++  },
++  {
++    year: 1932,
++    age: 37,
++    caption: "a road is cut nearby. her roots learn to grow around concrete for the first time.",
++    audio: ring1,
++  },
++  {
++    year: 1968,
++    age: 73,
++    caption: "a building goes up where her shade used to fall. the ring is uneven — she's leaning now.",
++    audio: ring2,
++  },
++  {
++    year: 1999,
++    age: 104,
++    caption: 'construction returns, closer this time. a root is cut without warning. the ring shows the break.',
++    audio: ring3,
++  },
++  {
++    year: 2018,
++    age: 123,
++    caption: 'encroachment reaches her base. the soil around her is paved over on one side.',
++    audio: ring4,
++  },
++  {
++    year: 2025,
++    age: 130,
++    caption: 'her roots are failing where they were cut. she is the oldest tree here, and the most forgotten.',
++    audio: ring5,
++  },
++];
+diff --git a/src/hooks/useTreeRing.js b/src/hooks/useTreeRing.js
+index 8938e77..ba289f1 100644
+--- a/src/hooks/useTreeRing.js
++++ b/src/hooks/useTreeRing.js
+@@ -1,9 +1,8 @@
+ import { useCallback, useEffect, useRef, useState } from 'react';
+-import { ringYears } from '../data/ringYears';
++import { ringYears as defaultRingYears } from '../data/ringYears';
+ 
+-const STEP_COUNT = ringYears.length;
+-
+-export function useTreeRing() {
++export function useTreeRing(years = defaultRingYears) {
++  const stepCount = years.length;
+   const [step, setStep] = useState(0);
+   const [isPlaying, setIsPlaying] = useState(false);
+   const audioRef = useRef(null);
+@@ -17,27 +16,30 @@ export function useTreeRing() {
+     setIsPlaying(false);
+   }, []);
+ 
+-  const playStepAudio = useCallback((stepIdx) => {
+-    if (audioRef.current) {
+-      audioRef.current.pause();
+-    }
+-    const audio = new Audio(ringYears[stepIdx].audio);
+-    audioRef.current = audio;
+-    audio.addEventListener('ended', () => setIsPlaying(false));
+-    audio.play();
+-    setIsPlaying(true);
+-  }, []);
++  const playStepAudio = useCallback(
++    (stepIdx) => {
++      if (audioRef.current) {
++        audioRef.current.pause();
++      }
++      const audio = new Audio(years[stepIdx].audio);
++      audioRef.current = audio;
++      audio.addEventListener('ended', () => setIsPlaying(false));
++      audio.play();
++      setIsPlaying(true);
++    },
++    [years]
++  );
+ 
+   const selectStep = useCallback(
+     (next) => {
+-      const clamped = Math.max(0, Math.min(STEP_COUNT - 1, next));
++      const clamped = Math.max(0, Math.min(stepCount - 1, next));
+       if (clamped === step) return;
+       if (isPlaying) {
+         playStepAudio(clamped);
+       }
+       setStep(clamped);
+     },
+-    [step, isPlaying, playStepAudio]
++    [step, isPlaying, playStepAudio, stepCount]
+   );
+ 
+   const togglePlay = useCallback(() => {
+@@ -58,10 +60,10 @@ export function useTreeRing() {
+ 
+   return {
+     step,
+-    stepCount: STEP_COUNT,
++    stepCount,
+     selectStep,
+     isPlaying,
+     togglePlay,
+-    current: ringYears[step],
++    current: years[step],
+   };
+ }
+diff --git a/src/pages/FindATree.jsx b/src/pages/FindATree.jsx
+new file mode 100644
+index 0000000..fab07a6
+--- /dev/null
++++ b/src/pages/FindATree.jsx
+@@ -0,0 +1,476 @@
++import { useState } from 'react';
++import { useNavigate } from 'react-router-dom';
++import { motion } from 'framer-motion';
++import PageShell from '../components/PageShell';
++import RingIllustration from '../components/RingIllustration';
++import YearScrubber from '../components/YearScrubber';
++import { useTreeRing } from '../hooks/useTreeRing';
++import { useResponsive } from '../hooks/useResponsive';
++import { jyesthaRingYears } from '../data/jyesthaRingYears';
++import MumbaiMapIllustration from '../components/MumbaiMapIllustration';
++import { RING_DEFS, CORE_DEF, CENTER, ringPath, ringPoint } from '../utils/jyesthaRingGeometry';
++import branchRight from '../assets/branches/branch-right.png';
++import branchLeft from '../assets/branches/branch-left.png';
++import { TreeIcon } from '../icons';
++
++const STATUS_COLOR = { critical: '#D6443C', attention: '#E8962A', stable: '#4D8B63' };
++const STATUS_LABEL = { critical: 'critical', attention: 'needs attention', stable: 'stable' };
++const STATUS_BG = { critical: '#fdf0ef', attention: '#fef7ec', stable: '#eef6f1' };
++
++const MAP_MARKERS = [
++  { id: 'jyestha', left: 38, top: 6, status: 'critical', z: 4, clickable: true },
++  { id: 'pappayya', left: 19, top: 72, status: 'attention', z: 3, clickable: false },
++  { id: 'meghna', left: 15, top: 46, status: 'stable', z: 3, clickable: false },
++  { id: 'kadam', left: 32, top: 72, status: 'attention', z: 3, clickable: false },
++  { id: 'neela', left: 45, top: 62, status: 'critical', z: 4, clickable: false },
++  { id: 'tamara', left: 43, top: 70, status: 'stable', z: 3, clickable: false },
++];
++
++const TREE_LIST = [
++  { id: 'jyestha', name: 'jyestha', subtitle: '130-yr banyan · aarey fringe', status: 'critical', clickable: true },
++  { id: 'pappayya', name: 'pappayya', subtitle: '89-yr peepal · shivaji park', status: 'attention', clickable: false },
++  { id: 'meghna', name: 'meghna', subtitle: '65-yr gulmohar · bandra hill road', status: 'stable', clickable: false },
++  { id: 'kadam', name: 'kadam', subtitle: '112-yr rain tree · dadar TT', status: 'attention', clickable: false },
++  { id: 'neela', name: 'neela', subtitle: '78-yr neem · dharavi edge', status: 'critical', clickable: false },
++  { id: 'tamara', name: 'tamara', subtitle: '95-yr tamarind · matunga colony', status: 'stable', clickable: false },
++];
++
++const JYESTHA_RINGS = RING_DEFS.map((def) => ({ ...def, d: ringPath(def.avgR, def.phase, def.encroach, def.gapRanges) }));
++const JYESTHA_CORE_D = ringPath(CORE_DEF.avgR, CORE_DEF.phase, CORE_DEF.encroach, CORE_DEF.gapRanges);
++const jyesthaPointAt = (ringDef, angle) => ringPoint(ringDef.avgR, ringDef.phase, ringDef.encroach, angle);
++
++const JYESTHA_NAME = 'jyestha';
++const JYESTHA_SPEC = '130-yr banyan · ficus benghalensis';
++const JYESTHA_LOC = 'aarey fringe, p-south · encroachment and root damage';
++const JYESTHA_OPENING =
++  "hi, this is jyestha. she's the oldest tree on maitri — and the one most at risk of being forgotten. encroachment is eating into her roots, and no one's stepped in yet.";
++const JYESTHA_FUNDING = '₹18,000 of ₹35,000 raised';
++const JYESTHA_FUNDING_PCT = 51;
++const JYESTHA_FUNDING_DESC = 'funds go toward legal intervention against encroachment and root stabilisation.';
++
++const RIGHT_BRANCHES = [
++  { name: 'r1', top: 320, offset: -140, width: 380, rotate: -3, opacity: 0.92 },
++  { name: 'r2', top: 820, offset: -100, width: 260, rotate: -7, opacity: 0.86 },
++  { name: 'r3', top: 1280, offset: -120, width: 320, rotate: -5, opacity: 0.9 },
++];
++const LEFT_BRANCHES = [
++  { name: 'l1', top: 570, offset: -110, width: 300, rotate: 5, opacity: 0.88 },
++  { name: 'l2', top: 1050, offset: -80, width: 240, rotate: 8, opacity: 0.84 },
++  { name: 'l3', top: 1600, offset: -130, width: 360, rotate: 4, opacity: 0.9 },
++];
++
++const BRANCH_REFERENCE_REACH = Math.max(
++  ...RIGHT_BRANCHES.map((b) => b.width + b.offset),
++  ...LEFT_BRANCHES.map((b) => b.width + b.offset)
++);
++
++function PhoneIcon() {
++  return (
++    <svg width="17" height="17" viewBox="0 0 20 20" fill="none">
++      <path
++        d="M 4 2 Q 5.5 1 7 3.5 L 8 6.5 Q 9 8.5 7 9.5 Q 6.5 10 7 11.5 Q 8.5 15.5 12.5 17.5 Q 14 18 14.5 17 Q 15.5 15.5 17.5 16.5 L 19.5 17.5 Q 21.5 18.5 20.5 20 Q 18.5 23 15.5 20.5 Q 8 15.5 3.5 8 Q 1 4.5 4 2 Z"
++        stroke="#1a1a1a"
++        strokeWidth="1.3"
++        fill="none"
++        strokeLinejoin="round"
++      />
++    </svg>
++  );
++}
++
++function StatusPill({ status }) {
++  return (
++    <span
++      className="font-jost"
++      style={{
++        display: 'inline-block',
++        background: STATUS_BG[status],
++        color: STATUS_COLOR[status],
++        fontSize: 12,
++        fontWeight: 500,
++        padding: '4px 12px',
++        borderRadius: 100,
++      }}
++    >
++      {STATUS_LABEL[status]}
++    </span>
++  );
++}
++
++function StaticBranch({ name, side, top, offset, width, rotate, opacity, src }) {
++  return (
++    <motion.img
++      data-branch={name}
++      src={src}
++      alt=""
++      initial={{ x: side === 'l' ? 160 : -160, opacity: 0 }}
++      animate={{ x: 0, opacity }}
++      transition={{ duration: 0.8, ease: 'easeOut' }}
++      style={{
++        position: 'absolute',
++        top,
++        [side === 'l' ? 'left' : 'right']: offset,
++        width,
++        pointerEvents: 'none',
++        zIndex: 0,
++        rotate: `${rotate}deg`,
++      }}
++    />
++  );
++}
++
++export default function FindATree() {
++  const r = useResponsive();
++  const navigate = useNavigate();
++  const [view, setView] = useState('map');
++  const tree = useTreeRing(jyesthaRingYears);
++
++  const branchScale = Math.min(1, r.branchSafeReach / BRANCH_REFERENCE_REACH);
++  const mapHeight = r.isMobile ? '52vh' : r.isTablet ? '58vh' : '64vh';
++
++  const openProfile = () => setView('jyestha');
++  const backToMap = () => setView('map');
++  const tieRakhi = () => navigate('/find/rakhi-confirmed');
++
++  if (view === 'jyestha') {
++    return (
++      <PageShell>
++        <div style={{ maxWidth: r.contentMaxWidth, margin: '0 auto', padding: `0 ${r.sidePad}`, position: 'relative' }}>
++          <button
++            onClick={backToMap}
++            className="font-jost"
++            style={{
++              background: 'none',
++              border: 'none',
++              padding: '20px 0 4px',
++              fontSize: 14,
++              fontWeight: 400,
++              color: '#888',
++              cursor: 'pointer',
++            }}
++          >
++            ← back to map
++          </button>
++
++          <div style={{ textAlign: 'center', marginTop: 12, marginBottom: 20 }}>
++            <div style={{ marginBottom: 14 }}>
++              <StatusPill status="critical" />
++            </div>
++            <h1
++              className="font-brush"
++              style={{ fontWeight: 400, fontSize: r.isMobile ? '36px' : '56px', color: '#1a1a1a', lineHeight: 1.05, margin: '0 0 12px 0', letterSpacing: '0.03em' }}
++            >
++              {JYESTHA_NAME}
++            </h1>
++            <p className="font-jost" style={{ fontSize: 15, color: '#777', margin: '0 0 4px 0' }}>
++              {JYESTHA_SPEC}
++            </p>
++            <p className="font-jost" style={{ fontSize: 14, color: '#999', margin: 0 }}>
++              {JYESTHA_LOC}
++            </p>
++          </div>
++
++          <div style={{ background: '#F5F4F0', borderRadius: 12, padding: '22px 24px', marginBottom: 32 }}>
++            <p className="font-jost" style={{ fontSize: 17, lineHeight: 1.7, color: '#4a4a4a', margin: 0 }}>
++              {JYESTHA_OPENING}
++            </p>
++          </div>
++
++          <RingIllustration
++            size={r.ringSize}
++            step={tree.step}
++            onSelectStep={tree.selectStep}
++            rings={JYESTHA_RINGS}
++            coreD={JYESTHA_CORE_D}
++            coreStrokeWidth={CORE_DEF.strokeWidth}
++            center={CENTER}
++            pointAt={jyesthaPointAt}
++            markerColor="#D6443C"
++          />
++
++          <YearScrubber
++            step={tree.step}
++            stepCount={tree.stepCount}
++            current={tree.current}
++            onSelectStep={tree.selectStep}
++            isPlaying={tree.isPlaying}
++            onTogglePlay={tree.togglePlay}
++          />
++
++          <div style={{ borderTop: '1px solid #ebebeb', paddingTop: 28, marginTop: 24, marginBottom: 28 }}>
++            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
++              <span className="font-jost" style={{ fontSize: 15, fontWeight: 500, color: '#1a1a1a' }}>
++                {JYESTHA_FUNDING}
++              </span>
++              <span className="font-jost" style={{ fontSize: 15, fontWeight: 500, color: '#D6443C' }}>
++                {JYESTHA_FUNDING_PCT}%
++              </span>
++            </div>
++            <div style={{ height: 6, background: '#f0efed', borderRadius: 3, overflow: 'hidden', marginBottom: 16 }}>
++              <div style={{ width: `${JYESTHA_FUNDING_PCT}%`, height: '100%', background: '#D6443C' }} />
++            </div>
++            <p className="font-jost" style={{ fontSize: 14, lineHeight: 1.6, color: '#888', margin: 0 }}>
++              {JYESTHA_FUNDING_DESC}
++            </p>
++          </div>
++
++          <button
++            className="font-jost"
++            style={{
++              width: '100%',
++              background: '#fff',
++              border: '1.5px solid #1a1a1a',
++              borderRadius: 8,
++              padding: '16px 24px',
++              fontWeight: 500,
++              fontSize: 16,
++              color: '#1a1a1a',
++              cursor: 'pointer',
++              display: 'flex',
++              alignItems: 'center',
++              justifyContent: 'center',
++              gap: 10,
++              marginBottom: 16,
++            }}
++          >
++            <PhoneIcon />
++            call the ngo / sanctuary
++          </button>
++
++          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 28 }}>
++            <button
++              onClick={tieRakhi}
++              className="font-jost"
++              style={{ background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: 10, padding: '22px 16px', textAlign: 'left', cursor: 'pointer' }}
++            >
++              <div style={{ fontWeight: 500, fontSize: 17, marginBottom: 8 }}>just you</div>
++              <div style={{ fontWeight: 300, fontSize: 13, color: 'rgba(255,255,255,0.58)', lineHeight: 1.45 }}>a personal bond — tie your own rakhi</div>
++            </button>
++            <button
++              onClick={tieRakhi}
++              className="font-jost"
++              style={{ position: 'relative', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: 10, padding: '22px 16px', textAlign: 'left', cursor: 'pointer' }}
++            >
++              <span
++                style={{
++                  position: 'absolute',
++                  top: -10,
++                  right: 12,
++                  background: '#D6443C',
++                  color: '#fff',
++                  fontSize: 11,
++                  fontWeight: 400,
++                  padding: '3px 10px',
++                  borderRadius: 10,
++                  letterSpacing: '0.03em',
++                }}
++              >
++                popular
++              </span>
++              <div style={{ fontWeight: 500, fontSize: 17, marginBottom: 8 }}>join a raksha circle</div>
++              <div style={{ fontWeight: 300, fontSize: 13, color: 'rgba(255,255,255,0.58)', lineHeight: 1.45 }}>pool care with others</div>
++            </button>
++          </div>
++        </div>
++
++        {RIGHT_BRANCHES.map((b) => (
++          <StaticBranch key={b.name} side="r" src={branchRight} {...b} offset={b.offset * branchScale} width={b.width * branchScale} />
++        ))}
++        {LEFT_BRANCHES.map((b) => (
++          <StaticBranch key={b.name} side="l" src={branchLeft} {...b} offset={b.offset * branchScale} width={b.width * branchScale} />
++        ))}
++      </PageShell>
++    );
++  }
++
++  return (
++    <PageShell>
++      <div style={{ position: 'relative', height: mapHeight, overflow: 'hidden' }}>
++        <div style={{ position: 'absolute', inset: 0 }}>
++          <MumbaiMapIllustration />
++        </div>
++
++        <div
++          style={{
++            position: 'absolute',
++            top: 16,
++            left: 16,
++            right: 16,
++            display: 'flex',
++            gap: 10,
++            zIndex: 10,
++          }}
++        >
++          <div
++            style={{
++              flex: 1,
++              background: '#fff',
++              borderRadius: 100,
++              padding: '12px 18px',
++              display: 'flex',
++              alignItems: 'center',
++              gap: 10,
++              boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
++            }}
++          >
++            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
++              <circle cx="7" cy="7" r="5.5" stroke="#999" strokeWidth="1.4" />
++              <line x1="11.5" y1="11.5" x2="15" y2="15" stroke="#999" strokeWidth="1.4" strokeLinecap="round" />
++            </svg>
++            <input
++              className="font-jost"
++              placeholder="search location or tree species"
++              style={{ border: 'none', outline: 'none', fontSize: 14, color: '#1a1a1a', flex: 1, background: 'transparent' }}
++            />
++          </div>
++          <button
++            style={{
++              flexShrink: 0,
++              width: 44,
++              height: 44,
++              background: '#1a1a1a',
++              border: 'none',
++              borderRadius: '50%',
++              cursor: 'pointer',
++              display: 'flex',
++              alignItems: 'center',
++              justifyContent: 'center',
++              boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
++            }}
++            aria-label="my location"
++          >
++            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
++              <circle cx="8" cy="8" r="2" fill="#fff" />
++              <circle cx="8" cy="8" r="6" stroke="#fff" strokeWidth="1.4" />
++            </svg>
++          </button>
++        </div>
++
++        {MAP_MARKERS.map((m) => (
++          <button
++            key={m.id}
++            onClick={m.clickable ? openProfile : undefined}
++            disabled={!m.clickable}
++            style={{
++              position: 'absolute',
++              left: `${m.left}%`,
++              top: `${m.top}%`,
++              transform: 'translate(-50%, -100%)',
++              zIndex: m.z,
++              background: 'none',
++              border: 'none',
++              padding: 0,
++              cursor: m.clickable ? 'pointer' : 'default',
++            }}
++            aria-label={m.id}
++          >
++            <div
++              style={{
++                width: 28,
++                height: 28,
++                borderRadius: '50%',
++                background: '#fff',
++                border: `2px solid ${STATUS_COLOR[m.status]}`,
++                boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
++                display: 'flex',
++                alignItems: 'center',
++                justifyContent: 'center',
++              }}
++            >
++              <TreeIcon width={13} height={17} fill={STATUS_COLOR[m.status]} />
++            </div>
++          </button>
++        ))}
++
++        <div
++          className="font-jost"
++          style={{
++            position: 'absolute',
++            bottom: 16,
++            right: 16,
++            background: '#fff',
++            borderRadius: 10,
++            padding: '12px 16px',
++            boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
++            zIndex: 10,
++          }}
++        >
++          {['critical', 'attention', 'stable'].map((s) => (
++            <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: s === 'stable' ? 0 : 6 }}>
++              <span style={{ width: 8, height: 8, borderRadius: '50%', background: STATUS_COLOR[s], display: 'inline-block' }} />
++              <span style={{ fontSize: 12, color: '#666' }}>{STATUS_LABEL[s]}</span>
++            </div>
++          ))}
++        </div>
++      </div>
++
++      <div style={{ maxWidth: r.contentMaxWidth, margin: '0 auto', padding: `0 ${r.sidePad}` }}>
++        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10 }}>
++          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#ddd' }} />
++        </div>
++
++        <div style={{ padding: '18px 0 8px' }}>
++          <h2 className="font-brush" style={{ fontWeight: 400, fontSize: r.isMobile ? '24px' : '32px', color: '#1a1a1a', margin: '0 0 4px 0' }}>
++            nearby trees
++          </h2>
++          <p className="font-jost" style={{ fontSize: 14, color: '#999', margin: 0 }}>
++            mumbai · 6 trees
++          </p>
++        </div>
++
++        <div>
++          {TREE_LIST.map((t) => (
++            <button
++              key={t.id}
++              onClick={t.clickable ? openProfile : undefined}
++              disabled={!t.clickable}
++              className="font-jost"
++              style={{
++                width: '100%',
++                display: 'flex',
++                alignItems: 'center',
++                gap: 14,
++                padding: '16px 0',
++                borderBottom: '1px solid #f5f5f5',
++                background: 'none',
++                border: 'none',
++                borderBottomWidth: 1,
++                textAlign: 'left',
++                cursor: t.clickable ? 'pointer' : 'default',
++              }}
++            >
++              <div
++                style={{
++                  flexShrink: 0,
++                  width: 48,
++                  height: 48,
++                  borderRadius: '50%',
++                  background: STATUS_BG[t.status],
++                  display: 'flex',
++                  alignItems: 'center',
++                  justifyContent: 'center',
++                }}
++              >
++                <TreeIcon width={18} height={23} fill={STATUS_COLOR[t.status]} />
++              </div>
++              <div style={{ flex: 1 }}>
++                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
++                  <span className="font-jost" style={{ fontWeight: 500, fontSize: 17, color: '#1a1a1a' }}>
++                    {t.name}
++                  </span>
++                  <span style={{ fontSize: 14, color: '#999' }}>{t.subtitle}</span>
++                </div>
++                <StatusPill status={t.status} />
++              </div>
++              {t.clickable && (
++                <svg width="8" height="14" viewBox="0 0 8 14" fill="none" style={{ flexShrink: 0 }}>
++                  <path d="M 1.5 1 L 7 7 L 1.5 13" stroke="#999" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
++                </svg>
++              )}
++            </button>
++          ))}
++        </div>
++      </div>
++    </PageShell>
++  );
++}
+diff --git a/src/pages/RakhiConfirmation.jsx b/src/pages/RakhiConfirmation.jsx
+new file mode 100644
+index 0000000..5f4fec9
+--- /dev/null
++++ b/src/pages/RakhiConfirmation.jsx
+@@ -0,0 +1,182 @@
++import { useNavigate } from 'react-router-dom';
++import PageShell from '../components/PageShell';
++import { useResponsive } from '../hooks/useResponsive';
++import { PersonBadgeIcon, TreeIcon } from '../icons';
++
++function Leaf({ x, y, rotate, scale = 1 }) {
++  return (
++    <path
++      d="M0 0 C -4 -10 -3 -20 0 -28 C 3 -20 4 -10 0 0 Z"
++      fill="#4f8a3f"
++      stroke="#3a6b2e"
++      strokeWidth="0.8"
++      transform={`translate(${x} ${y}) rotate(${rotate}) scale(${scale})`}
++    />
++  );
++}
++
++const BRANCHES = [
++  { path: 'M100,150 C 90,120 70,100 50,70', leaf: [50, 70], rot: -40 },
++  { path: 'M100,150 C 95,110 80,85 60,55', leaf: [60, 55], rot: -25 },
++  { path: 'M100,150 C 100,105 95,75 90,40', leaf: [90, 40], rot: -5 },
++  { path: 'M100,150 C 105,105 112,75 118,42', leaf: [118, 42], rot: 8 },
++  { path: 'M100,150 C 110,115 128,90 145,62', leaf: [145, 62], rot: 28 },
++  { path: 'M100,150 C 112,125 132,108 155,85', leaf: [155, 85], rot: 42 },
++  { path: 'M90,150 C 70,140 48,138 28,128', leaf: [28, 128], rot: -75 },
++  { path: 'M112,148 C 132,140 152,140 170,132', leaf: [170, 132], rot: 78 },
++];
++
++function TreeWithRakhiIllustration({ size }) {
++  const w = size;
++  const h = size * 1.4;
++  return (
++    <svg width={w} height={h} viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, display: 'block' }}>
++      {BRANCHES.map((b, i) => (
++        <g key={i}>
++          <path d={b.path} stroke="#8a6f4e" strokeWidth="4.5" fill="none" strokeLinecap="round" />
++          <Leaf x={b.leaf[0]} y={b.leaf[1]} rotate={b.rot} />
++          <Leaf x={b.leaf[0] + 8} y={b.leaf[1] + 10} rotate={b.rot + 35} scale={0.75} />
++        </g>
++      ))}
++
++      <path
++        d="M75,280 C72,230 78,190 86,150 C90,130 92,120 90,108 C88,98 94,92 100,92 C106,92 112,98 110,108 C108,120 110,130 114,150 C122,190 128,230 125,280 Z"
++        fill="#a3835c"
++        stroke="#7a6040"
++        strokeWidth="2"
++      />
++      <path d="M92,140 L88,260 M108,140 L112,260 M100,110 L99,250" stroke="#7a6040" strokeWidth="1.4" opacity="0.6" fill="none" />
++
++      {/* rakhi thread wrapped around the trunk */}
++      <g stroke="#C0382B" strokeWidth="4" fill="none" strokeLinecap="round">
++        <path d="M78,205 C 90,200 110,212 122,206" />
++        <path d="M77,216 C 90,224 112,210 124,218" />
++        <path d="M78,228 C 92,222 110,234 123,228" />
++        <path d="M124,222 C 145,232 158,248 162,266" />
++      </g>
++
++      {/* person */}
++      <g transform="translate(140,178)">
++        <path
++          d="M10,4 C4,-2 4,-10 10,-14 C16,-18 26,-18 30,-12 C36,-14 40,-8 36,-2 C40,2 36,8 30,6 C28,12 18,12 14,8 C8,10 4,6 10,4 Z"
++          fill="none"
++          stroke="#1a1a1a"
++          strokeWidth="2"
++        />
++        <circle cx="20" cy="10" r="13" fill="none" stroke="#1a1a1a" strokeWidth="2" />
++        <circle cx="15" cy="11" r="1.1" fill="#1a1a1a" />
++        <circle cx="24" cy="11" r="1.1" fill="#1a1a1a" />
++        <path
++          d="M8,22 C2,28 0,40 4,52 L8,72 L32,72 L36,52 C40,40 38,28 32,22 C26,30 14,30 8,22 Z"
++          fill="#5c9a4a"
++          stroke="#1a1a1a"
++          strokeWidth="2"
++        />
++        <path d="M10,32 L30,32 M9,42 L31,42 M10,52 L30,52" stroke="#cfe6c0" strokeWidth="1" opacity="0.8" />
++        <path d="M10,52 L6,76 L14,76 L16,58 M30,52 L34,76 L26,76 L24,58" fill="#5c9a4a" stroke="#1a1a1a" strokeWidth="2" />
++        <path d="M8,40 C0,42 -4,46 -2,50" fill="none" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
++        <path d="M32,40 C40,42 44,46 42,50" fill="none" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" />
++      </g>
++    </svg>
++  );
++}
++
++export default function RakhiConfirmation() {
++  const r = useResponsive();
++  const navigate = useNavigate();
++  const illustrationSize = r.isMobile ? 160 : 220;
++
++  return (
++    <PageShell fabLabel="see all trees">
++      <div style={{ maxWidth: r.contentMaxWidth, margin: '0 auto', padding: `0 ${r.sidePad}` }}>
++        <button
++          onClick={() => navigate(-1)}
++          className="font-jost"
++          style={{ background: 'none', border: 'none', padding: '20px 0 4px', fontSize: 14, fontWeight: 400, color: '#888', cursor: 'pointer' }}
++        >
++          ← back
++        </button>
++
++        <section style={{ paddingTop: r.heroPaddingTop, paddingBottom: 0 }}>
++          <h1
++            className="font-brush"
++            style={{ fontWeight: 400, fontSize: r.heroHeadingSize, color: '#1a1a1a', lineHeight: 1.1, margin: '0 0 28px 0' }}
++          >
++            you've tied a rakhi to jyestha.
++          </h1>
++          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24, marginBottom: 0, flexWrap: r.isMobile ? 'wrap' : 'nowrap' }}>
++            <TreeWithRakhiIllustration size={illustrationSize} />
++            <p className="font-jost" style={{ fontSize: r.heroBodySize, fontWeight: 300, color: '#777', lineHeight: 1.65, margin: '0 0 16px 0' }}>
++              she knows she's not alone now. here's what comes next.
++            </p>
++          </div>
++        </section>
++
++        <section style={{ borderTop: '1px solid #ebebeb', paddingTop: 40, marginBottom: 52 }}>
++          <p className="font-jost" style={{ fontWeight: 300, fontSize: 13, color: '#c0b8b0', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 14px 0' }}>
++            what's next
++          </p>
++          <h2 className="font-brush" style={{ fontWeight: 400, fontSize: r.sacredHeadingSize, color: '#1a1a1a', lineHeight: 1.2, maxWidth: 440, margin: '0 0 28px 0' }}>
++            keep the bond going.
++          </h2>
++
++          <button
++            onClick={() => navigate('/find/circle')}
++            className="font-jost"
++            style={{
++              width: '100%',
++              textDecoration: 'none',
++              display: 'flex',
++              alignItems: 'center',
++              justifyContent: 'space-between',
++              border: '1.5px solid #1a1a1a',
++              borderRadius: 12,
++              padding: 24,
++              marginBottom: 14,
++              cursor: 'pointer',
++              background: '#fff',
++            }}
++          >
++            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
++              <PersonBadgeIcon width={28} height={33} fill="#1a1a1a" />
++              <div style={{ textAlign: 'left' }}>
++                <div style={{ fontWeight: 500, fontSize: 18, color: '#1a1a1a', marginBottom: 4 }}>view your circle</div>
++                <div style={{ fontWeight: 300, fontSize: 14, color: '#bbb' }}>see who else is protecting jyestha</div>
++              </div>
++            </div>
++            <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
++              <path d="M 1 1 L 7 7 L 1 13" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round" fill="none" />
++            </svg>
++          </button>
++
++          <button
++            onClick={() => navigate('/find/wellbeing')}
++            className="font-jost"
++            style={{
++              width: '100%',
++              display: 'flex',
++              alignItems: 'center',
++              justifyContent: 'space-between',
++              border: '1.5px solid #ebebeb',
++              borderRadius: 12,
++              padding: 24,
++              cursor: 'pointer',
++              background: '#fff',
++            }}
++          >
++            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
++              <TreeIcon width={21} height={27} fill="#D6443C" />
++              <div style={{ textAlign: 'left' }}>
++                <div style={{ fontWeight: 500, fontSize: 18, color: '#1a1a1a', marginBottom: 4 }}>check on jyestha</div>
++                <div style={{ fontWeight: 300, fontSize: 14, color: '#bbb' }}>health reports · schedule a visit</div>
++              </div>
++            </div>
++            <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
++              <path d="M 1 1 L 7 7 L 1 13" stroke="#ccc" strokeWidth="1.5" strokeLinecap="round" fill="none" />
++            </svg>
++          </button>
++        </section>
++      </div>
++    </PageShell>
++  );
++}
+diff --git a/src/utils/jyesthaRingGeometry.js b/src/utils/jyesthaRingGeometry.js
+new file mode 100644
+index 0000000..09932df
+--- /dev/null
++++ b/src/utils/jyesthaRingGeometry.js
+@@ -0,0 +1,106 @@
++// Asymmetric, off-center, broken-ring generator for Jyestha — ported from the
++// design bundle's embedded ring algorithm. Rings lean away from the
++// encroachment side and carry gaps where roots/shade were physically cut.
++const BASE_CX = 190;
++const BASE_CY = 192;
++
++function ringPts(avgR, phase, encroach) {
++  const n = 48;
++  const cx = BASE_CX - encroach * 14;
++  const cy = BASE_CY + encroach * 5;
++  const pts = [];
++  for (let i = 0; i < n; i++) {
++    const t = (i / n) * Math.PI * 2 - Math.PI / 2;
++    const organic =
++      Math.sin(t * 3 + phase) * 0.075 +
++      Math.cos(t * 5 + phase * 1.2) * 0.042 +
++      Math.sin(t * 8 + phase * 0.85) * 0.022 +
++      Math.cos(t * 13 + phase * 1.6) * 0.01;
++    const encFactor = encroach * Math.max(0, Math.cos(t - 0.12)) * 0.44;
++    const r = avgR * (1 + organic) * (1 - encFactor);
++    pts.push({ t, x: cx + r * Math.cos(t), y: cy + r * Math.sin(t) });
++  }
++  return pts;
++}
++
++function smoothSeg(pts, idxArr) {
++  const N = pts.length;
++  const g = (i) => pts[i % N];
++  let d = `M ${g(idxArr[0]).x.toFixed(1)},${g(idxArr[0]).y.toFixed(1)}`;
++  for (let k = 0; k < idxArr.length - 1; k++) {
++    const p0 = g(idxArr[k > 0 ? k - 1 : 0]);
++    const p1 = g(idxArr[k]);
++    const p2 = g(idxArr[k + 1]);
++    const p3 = g(idxArr[k < idxArr.length - 2 ? k + 2 : idxArr.length - 1]);
++    d += ` C ${(p1.x + (p2.x - p0.x) / 6).toFixed(1)},${(p1.y + (p2.y - p0.y) / 6).toFixed(1)} ${(p2.x - (p3.x - p1.x) / 6).toFixed(1)},${(p2.y - (p3.y - p1.y) / 6).toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
++  }
++  return d;
++}
++
++export function ringPath(avgR, phase, encroach, gapRanges) {
++  const pts = ringPts(avgR, phase, encroach);
++  const N = pts.length;
++  if (!gapRanges || gapRanges.length === 0) {
++    let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
++    for (let k = 0; k < N; k++) {
++      const p0 = pts[(k - 1 + N) % N];
++      const p1 = pts[k];
++      const p2 = pts[(k + 1) % N];
++      const p3 = pts[(k + 2) % N];
++      d += ` C ${(p1.x + (p2.x - p0.x) / 6).toFixed(1)},${(p1.y + (p2.y - p0.y) / 6).toFixed(1)} ${(p2.x - (p3.x - p1.x) / 6).toFixed(1)},${(p2.y - (p3.y - p1.y) / 6).toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
++    }
++    return d + ' Z';
++  }
++  const isGap = pts.map((p) => gapRanges.some(([s, e]) => p.t >= s && p.t <= e));
++  const segs = [];
++  let cur = [];
++  for (let i = 0; i < N; i++) {
++    if (!isGap[i]) cur.push(i);
++    else if (cur.length) {
++      segs.push(cur);
++      cur = [];
++    }
++  }
++  if (cur.length) segs.push(cur);
++  if (segs.length >= 2 && !isGap[0] && !isGap[N - 1]) {
++    const merged = [...segs[segs.length - 1], ...segs[0].map((i) => i + N)];
++    segs.splice(segs.length - 1, 1, merged);
++    segs.shift();
++  }
++  return segs
++    .filter((s) => s.length >= 2)
++    .map((s) => smoothSeg(pts, s))
++    .join(' ');
++}
++
++// Generalized marker placement: finds the ring point nearest a target angle,
++// preserving Rio's drag-to-select interaction model.
++export function ringPoint(avgR, phase, encroach, angle) {
++  const pts = ringPts(avgR, phase, encroach);
++  let best = pts[0];
++  let bestDist = Infinity;
++  for (const p of pts) {
++    let d = Math.abs(p.t - angle);
++    if (d > Math.PI) d = Math.PI * 2 - d;
++    if (d < bestDist) {
++      bestDist = d;
++      best = p;
++    }
++  }
++  return [best.x, best.y];
++}
++
++// Outer -> inner. Index 0 = outermost (most recent year, 2025).
++export const RING_DEFS = [
++  { avgR: 162, phase: 0.1, encroach: 0.62, gapRanges: null, strokeWidth: 2.5 },
++  { avgR: 140, phase: 1.2, encroach: 0.5, gapRanges: null, strokeWidth: 2.2 },
++  { avgR: 118, phase: 2.1, encroach: 0.36, gapRanges: null, strokeWidth: 2.0 },
++  { avgR: 96, phase: 3.0, encroach: 0.24, gapRanges: [[-0.3, 0.44]], strokeWidth: 1.8 },
++  { avgR: 74, phase: 3.7, encroach: 0.12, gapRanges: [[-0.74, -0.32]], strokeWidth: 1.6 },
++  { avgR: 52, phase: 4.4, encroach: 0.04, gapRanges: null, strokeWidth: 1.4 },
++];
++
++// Innermost decorative pith ring, not selectable.
++export const CORE_DEF = { avgR: 32, phase: 5.1, encroach: 0.01, gapRanges: null, strokeWidth: 1.2 };
++
++export const CENTER = { cx: BASE_CX, cy: BASE_CY };
